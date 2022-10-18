@@ -1,14 +1,36 @@
 (ns book-library.service
-  (:require [book-library.diplomat.http-server :as http-server]
+  (:require [com.stuartsierra.component :as component]
             [io.pedestal.http :as http]))
 
-;;TODO (1) - extract server to its own namespace
+(defonce server (atom nil))
 
-(defn create-server []
-  (http/create-server
-   {::http/routes http-server/routes
-    ::http/type :jetty
-    ::http/port 8890}))
+(defn start! [service-map]
+  (reset! server (http/start (http/create-server service-map))))
 
-(defn start []
-  (http/start (create-server)))
+(defn stop! []
+  (http/stop @server))
+
+(defn restart! [service-map]
+  (stop!)
+  (start! service-map))
+
+(defn start-server! [service-map]
+  (try (start! service-map) (catch Exception ex (println "Error to start" (.getMessage ex))))
+  (try (restart! service-map) (catch Exception ex (println "Error to restart" (.getMessage ex)))))
+
+(defrecord Server [routes]
+  component/Lifecycle
+
+  (start [this]
+    (let [service-map {::http/routes (:routes routes)
+                       ::http/type   :jetty
+                       ::http/port   8890
+                       ::http/join?  false}
+          _ (start-server! service-map)])
+    (assoc this :http-server server))
+
+  (stop [this]
+    (dissoc this :http-server server)))
+
+(defn new-server []
+  (->Server {}))
