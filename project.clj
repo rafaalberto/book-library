@@ -13,4 +13,4 @@
             [lein-nsorg "0.3.0"]]
   :aliases {"clean-ns" ["nsorg" "--replace"]
             "lint-fix" ["do" ["clean-ns"] ["cljfmt" "fix"]]}
-  :repl-options {:init-ns book-library.core})
+  :repl-options {:init-ns book-library.server})

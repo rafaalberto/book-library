@@ -1,8 +1,7 @@
-(ns book-library.server)
+(ns book-library.server
+  (:gen-class)
+  (:require [book-library.components :as components]
+            [com.stuartsierra.component :as component]))
 
-;drop core namespace
-
-;dissoc inside components functions
-
-; call -main
-; components/create-and-start-system!
+(defn -main [& _]
+  (component/start (components/base)))
